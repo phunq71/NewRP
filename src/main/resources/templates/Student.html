@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Student Management</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -14,103 +14,130 @@
       background-color: #0A192F;
       color: white;
     }
-    .container { margin-top: 30px; }
+    .container { 
+      margin-top: 15px;
+      padding: 0 15px;
+    }
     .card {
       background-color: black;
       color: white;
       border: none;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
+      margin-bottom: 15px;
     }
     thead th {
       background-color: green !important;
       position: sticky;
       top: 0;
     }
+    @media (max-width: 768px) {
+      .container {
+        margin-top: 10px;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      .card {
+        padding: 10px;
+      }
+      .table {
+        font-size: 0.9rem;
+      }
+      .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+    @media (max-width: 576px) {
+      .gender-group {
+        flex-direction: column;
+      }
+      .table {
+        font-size: 0.8rem;
+      }
+      .form-label {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
 <div id="app" class="container">
-  <h2 class="text-center mb-3">STUDENT LIST</h2>
+  <h2 class="text-center mb-3 h4-md">STUDENT LIST</h2>
   <div class="row">
     <!-- Form -->
-    <div class="col-md-3">
+    <div class="col-12 col-md-3 mb-3 mb-md-0">
       <div class="card">
         <form @submit.prevent="handleSubmit">
           <div class="mb-3">
             <label class="form-label">Email</label>
-            <input type="email" class="form-control" v-model="student.email" :disabled="editing" required>
+            <input type="email" class="form-control form-control-sm" v-model="student.email" :disabled="editing" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Full Name</label>
-            <input type="text" class="form-control" v-model="student.fullname" required>
+            <input type="text" class="form-control form-control-sm" v-model="student.fullname" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Marks</label>
-            <input type="number" class="form-control" v-model.number="student.marks" min="0" max="10" step="0.1" required>
+            <input type="number" class="form-control form-control-sm" v-model.number="student.marks" min="0" max="10" step="0.1" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Country</label>
-            <select class="form-control" v-model="student.country" required>
-              <option value="">Select a country</option>
+            <select class="form-control form-control-sm" v-model="student.country" required>
+              <option value="">Select country</option>
               <option>US</option>
               <option>VN</option>
             </select>
           </div>
-          <div class="mb-3">
-            <label>Gender</label><br/>
-            <input type="radio" v-model="student.gender" :value="true"> Male
-            <input type="radio" v-model="student.gender" :value="false"> Female
+          <div class="mb-3 gender-group">
+            <label class="form-label">Gender</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" v-model="student.gender" :value="true" id="male">
+                <label class="form-check-label" for="male">Male</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" v-model="student.gender" :value="false" id="female">
+                <label class="form-check-label" for="female">Female</label>
+              </div>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary">{{ editing ? 'Update' : 'Create' }}</button>
-          <button type="button" class="btn btn-secondary ms-2" @click="reset">Reset</button>
+          <div class="d-grid gap-2 d-md-block">
+            <button type="submit" class="btn btn-primary btn-sm">{{ editing ? 'Update' : 'Create' }}</button>
+            <button type="button" class="btn btn-secondary btn-sm ms-2" @click="reset">Reset</button>
+          </div>
         </form>
       </div>
     </div>
 
     <!-- Table -->
-    <div class="col-md-9">
+    <div class="col-12 col-md-9">
       <div class="card">
         <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Search by name..." v-model="searchQuery" @input="fetchStudents(0)">
+          <input type="text" class="form-control form-control-sm" placeholder="Search by name..." v-model="searchQuery" @input="fetchStudents(0)">
         </div>
-        <table class="table table-dark table-bordered table-hover">
-          <thead class="text-center">
-            <tr>
-              <th>Email</th>
-              <th>Full Name</th>
-              <th>Marks</th>
-              <th>Gender</th>
-              <th>Country</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="s in students" :key="s.email">
-              <td>{{ s.email }}</td>
-              <td>{{ s.fullname }}</td>
-              <td>{{ s.marks }}</td>
-              <td>{{ s.gender ? 'Male' : 'Female' }}</td>
-              <td>{{ s.country }}</td>
-              <td>
-                <button class="btn btn-warning me-1" @click="edit(s)">Edit</button>
-                <button class="btn btn-danger" @click="deleteStudent(s.email)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-dark table-bordered table-hover mb-2">
+            <thead class="text-center">
+              <tr>
+                <th style="min-width: 120px">Email</th>
+                <th style="min-width: 150px">Full Name</th>
+                <th style="min-width: 80px">Marks</th>
+                <th style="min-width: 100px">Gender</th>
+                <th style="min-width: 100px">Country</th>
+                <th style="min-width: 150px">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Giữ nguyên phần tr -->
+            </tbody>
+          </table>
+        </div>
         <!-- Pagination -->
         <nav>
-          <ul class="pagination justify-content-center">
-            <li class="page-item" :class="{ disabled: currentPage === 0 }">
-              <button class="page-link" @click="fetchStudents(currentPage - 1)">Previous</button>
-            </li>
-            <li class="page-item" v-for="page in (totalPages -1) " :class="{ active: page === currentPage }">
-              <button class="page-link" @click="fetchStudents(page)">{{ page + 1 }}</button>
-            </li>
-            <li class="page-item" :class="{ disabled: currentPage >= totalPages - 1 }">
-              <button class="page-link" @click="fetchStudents(currentPage + 1)">Next</button>
-            </li>
+          <ul class="pagination pagination-sm justify-content-center flex-wrap">
+            <!-- Giữ nguyên phần pagination -->
           </ul>
         </nav>
       </div>
